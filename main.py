@@ -24,7 +24,7 @@ class MyHTMLParser(HTMLParser):
         if course_regex.match(data):
         	course.append(data)
         else:
-        	course = []
+            course = []
 
 
 parser = MyHTMLParser()
@@ -64,12 +64,20 @@ def courseoff_parser(courses, semester, year, color):
         else:
             majors_and_courses[major] = set(course_num)
 
-    for major in majors_and_courses.keys():    
-        url = 'https://soc.courseoff.com/gatech/terms/{}/majors/{}/courses'.format(sem, major)
+    for major, courses in majors_and_courses.items():    
+        url = 'https://soc.courseoff.com/gatech/terms/{}/majors/{}/courses/{}/sections'.format(sem, major, course)
         data = requests.get(url)
         data = data.json()
-        
-
+        if data:
+            for section in data:
+                instructor = section.get('instructor')
+                if instructor:
+                    lname = instructor.get('lname').upper()
+                    fname = instructor.get('fname').upper()
+                    name  = name = ''.join((fname + lname).split())
+                    critique_url = 'http://critique.gatech.edu/prof.php?id={}#{}'.format(name, major.upper()+course)
+                    critique = request.get(critique_url)
+                    
 
 
 #pp(php_parser('e'))
