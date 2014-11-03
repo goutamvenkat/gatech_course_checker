@@ -35,23 +35,23 @@ def php_parser(core, color='WHITE'):
 	courses = courses.content
 	parser.feed(courses)
 	global classes
-	c = classes 
-    courseoff_info = courseoff_parser(c, 'Spring', '2015', color)
+	c = classes
+	courseoff_info = courseoff_parser(c, 'Spring', '2015', color)
 
 def get_semester(semester, year):
-    sem += year
-    if semester.lowercase() == 'fall':
-        sem += '08'
-    elif semester.lowercase() == 'spring':
-        sem += '01'
-    else:
-        sem += '05'
-    return sem
+	sem = ''
+	sem += year
+	if semester.lower() == 'fall':
+	    sem += '08'
+	elif semester.lower() == 'spring':
+	    sem += '01'
+	else:
+	    sem += '05'
+	return sem
 
 def courseoff_parser(courses, semester, year, color):
     sem = get_semester(semester, year)
     classes_in_sem = []
-    majors_and_courses = dict()
     for course in courses:
         if len(course) < 2:
             course = course[0]
@@ -59,13 +59,8 @@ def courseoff_parser(courses, semester, year, color):
             course = course[1]
         major, course_num = course.split()
         course_num = int(course_num)
-        if majors_and_courses.get(major):
-            majors_and_courses[major].add(course_num)
-        else:
-            majors_and_courses[major] = set(course_num)
-
-    for major, courses in majors_and_courses.items():    
-        url = 'https://soc.courseoff.com/gatech/terms/{}/majors/{}/courses/{}/sections'.format(sem, major, course)
+        sem = get_semester(semester, year)
+    	url = 'https://soc.courseoff.com/gatech/terms/{}/majors/{}/courses/{}/sections'.format(sem, major, course_num)
         data = requests.get(url)
         data = data.json()
         if data:
@@ -75,9 +70,10 @@ def courseoff_parser(courses, semester, year, color):
                     lname = instructor.get('lname').upper()
                     fname = instructor.get('fname').upper()
                     name  = name = ''.join((fname + lname).split())
-                    critique_url = 'http://critique.gatech.edu/prof.php?id={}#{}'.format(name, major.upper()+course)
-                    critique = request.get(critique_url)
-                    
+                    critique_url = 'http://critique.gatech.edu/prof.php?id={}#{}'.format(name, major.upper()+str(course))
+                    critique = requests.get(critique_url)
+                    print critique.content
 
-
-#pp(php_parser('e'))
+        	
+	                   
+pp(php_parser('e'))
