@@ -10,44 +10,46 @@ class MyHTMLParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         global course
         if tag == 'li':
-	        for attr in attrs:
-	            course.append(attr)
+            for attr in attrs:
+                course.append(attr)
     def handle_endtag(self, tag):
-    	global course
-    	global classes
-    	if tag == 'li' and course:
-    		classes.append(course)
-    		course = []
+        global course
+        global classes
+        if tag == 'li' and course:
+            classes.append(course)
+            course = []
     def handle_data(self, data):
-    	global course
-    	global course_regex
+        global course
+        global course_regex
         if course_regex.match(data):
-        	course.append(data)
+            course.append(data)
         else:
             course = []
 
+class critiqueParser(HTMLParser):
+
 
 parser = MyHTMLParser()
-
+critique_parser = critiqueParser()
 def php_parser(core, color='WHITE'):
-	catalog_url = 'http://www.catalog.gatech.edu/students/ugrad/core/core{}.php'.format(core)
-	courses = requests.get(catalog_url)
-	courses = courses.content
-	parser.feed(courses)
-	global classes
-	c = classes
-	courseoff_info = courseoff_parser(c, 'Spring', '2015', color)
+    catalog_url = 'http://www.catalog.gatech.edu/students/ugrad/core/core{}.php'.format(core)
+    courses = requests.get(catalog_url)
+    courses = courses.content
+    parser.feed(courses)
+    global classes
+    c = classes
+    courseoff_info = courseoff_parser(c, 'Spring', '2015', color)
 
 def get_semester(semester, year):
-	sem = ''
-	sem += year
-	if semester.lower() == 'fall':
-	    sem += '08'
-	elif semester.lower() == 'spring':
-	    sem += '01'
-	else:
-	    sem += '05'
-	return sem
+    sem = ''
+    sem += year
+    if semester.lower() == 'fall':
+        sem += '08'
+    elif semester.lower() == 'spring':
+        sem += '01'
+    else:
+        sem += '05'
+    return sem
 
 def courseoff_parser(courses, semester, year, color):
     sem = get_semester(semester, year)
@@ -60,7 +62,7 @@ def courseoff_parser(courses, semester, year, color):
         major, course_num = course.split()
         course_num = int(course_num)
         sem = get_semester(semester, year)
-    	url = 'https://soc.courseoff.com/gatech/terms/{}/majors/{}/courses/{}/sections'.format(sem, major, course_num)
+        url = 'https://soc.courseoff.com/gatech/terms/{}/majors/{}/courses/{}/sections'.format(sem, major, course_num)
         data = requests.get(url)
         data = data.json()
         if data:
@@ -69,11 +71,13 @@ def courseoff_parser(courses, semester, year, color):
                 if instructor:
                     lname = instructor.get('lname').upper()
                     fname = instructor.get('fname').upper()
-                    name  = name = ''.join((fname + lname).split())
-                    critique_url = 'http://critique.gatech.edu/prof.php?id={}#{}'.format(name, major.upper()+str(course))
+                    name  = ''.join((lname + ' ' + fname).split())
+                    critique_url = 'http://critique.gatech.edu/prof.php?id={}'.format(name)
                     critique = requests.get(critique_url)
-                    print critique.content
-
-        	
-	                   
+                    critique_parser.feed(critique.content)
+                    
+                    # print name
+                    # print critique.content
+                    # print '------------------------'*3
+                              
 pp(php_parser('e'))
