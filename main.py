@@ -27,18 +27,24 @@ class MyHTMLParser(HTMLParser):
             course = []
 
 class critiqueParser(HTMLParser):
-
+	def handle_starttag(self, tag, attrs):
+        
+    def handle_endtag(self, tag):
+        
+    def handle_data(self, data):
+        
+		
 
 parser = MyHTMLParser()
 critique_parser = critiqueParser()
-def php_parser(core, color='WHITE'):
+def php_parser(core, color='WHITE', semester, year):
     catalog_url = 'http://www.catalog.gatech.edu/students/ugrad/core/core{}.php'.format(core)
     courses = requests.get(catalog_url)
     courses = courses.content
     parser.feed(courses)
     global classes
     c = classes
-    courseoff_info = courseoff_parser(c, 'Spring', '2015', color)
+    courseoff_info = courseoff_parser(c, semester, year, color)
 
 def get_semester(semester, year):
     sem = ''
@@ -79,5 +85,9 @@ def courseoff_parser(courses, semester, year, color):
                     # print name
                     # print critique.content
                     # print '------------------------'*3
-                              
-pp(php_parser('e'))
+def main():
+	semester, year = raw_input('Semester, Year').split()
+	pp(php_parser('e', semester, year))
+
+if __name__=='__main__':
+	main()
